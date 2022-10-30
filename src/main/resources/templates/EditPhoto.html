@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script src="../static/js/jquery.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <script src="../static/js/vue.min.js"></script>
+    <script src="../static/js/axios.min.js"></script>
+    <script src="../static/js/element.js"></script>
+    <script src="../static/js/cropper.js"></script>
+    <link href="../static/css/cropper.css" rel="stylesheet"/>
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="../static/css/element.css" rel="stylesheet"/>
+    <title>编辑头像</title>
+    <style>
+        #saveButton {
+            width: 80px;
+            border-radius: 17px;
+            background-color: #FF8200;
+            color: white;
+            border: none;
+            height: 34px;
+            position: relative;
+            bottom: 100px;
+        }
+
+        #saveButton:hover {
+            background-color: #f36126;
+        }
+
+        [v-cloak]{
+            display: none;
+        }
+    </style>
+</head>
+<body style="background-color: #F5F5F5">
+<div id="header" v-cloak>
+    <headers></headers>
+</div>
+<div style="margin: 0 auto;width: 1000px" >
+    <h2 style="text-align: center;color: gray">编辑头像</h2>
+    <div style="background-color: white;border-radius: 10px;padding:20px;width: 600px;display: inline-block;position: relative;left: 200px">
+        <div class="box" style="width: 500px;height: 300px">
+            <img src="" id="photo" alt="图片">
+        </div>
+    </div>
+    <div style="position: relative;display: inline-block;left: 200px;bottom: 170px;margin-left: 40px;background-color: white;height: 330px;border-radius: 10px;padding-top: 50px">
+        <span style="display: inline-block;width: 100px;font-size: 20px;margin-bottom: 20px;color: gray">&nbsp;&nbsp;头像预览</span>
+        <div class="small img-rounded" style="width: 70px;height: 70px;overflow: hidden;margin: 0 auto;" ></div>
+    </div>
+</div>
+<div style="margin: 0 auto;width: 100px;position: relative;bottom: 70px">
+    <form>
+        <label for="file" style="position: relative;bottom: 80px;right: 230px">
+            <h5 style="font-size: 12px;color: orange;cursor:pointer;">更换头像</h5>
+        </label>
+        <input type="file" id="file" style="display: none" accept="image/gif,image/jpeg,image/jpg,image/png">
+    </form>
+    <h5 id="rotate" style="font-size: 12px;color: orange;cursor:pointer;position: relative;bottom: 115px;left: 200px"><i class="el-icon-refresh-right">90度旋转</i></h5>
+    <el-button :plain="true" id="saveButton" @click="uploadAvatar">保&nbsp;&nbsp;存</el-button>
+</div>
+</body>
+<script src="../static/js/header.js"></script>
+<script>
+    var cropper
+
+    document.getElementById("file").onchange = function (e) {
+        cropper.replace(window.URL.createObjectURL(e.target.files[0]))
+    }
+
+    document.getElementById("rotate").onclick = function () {
+        cropper.rotate(90)
+    }
+
+    new Vue({
+        el: "#saveButton",
+        data:{
+            status:'',
+        },
+        methods:{
+            uploadAvatar: function () {
+                var data = new FormData()
+                data.append("avatar", cropper.getCroppedCanvas().toDataURL("image/png"))
+                axios.post("https://localhost:8443/uploadAvatar", data, header)
+                    .then(res => {
+                        if (res.data.loginStatus === false){
+                            alert("您的账号在别处进行了登录!!")
+                            location.href = "https://localhost:8443/homepage"
+                        }else {
+                            this.$message({
+                                message: '修改成功!',
+                                type: 'success',
+                                duration:700
+                            });
+                            setTimeout(function () {
+                                location.href = "https://localhost:8443/personalInfo"
+                            }, 700)
+                        }
+                    })
+            }
+        },
+        created() {
+            axios.post("https://localhost:8443/getAvatar", {}, header)
+                .then(res => {
+                    if(res.data.loginStatus === true){
+                        document.getElementById("photo").src = "https://localhost:8443/static/upload/" + res.data.avatar
+                        cropper = new Cropper(document.getElementById("photo"), {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            preview: ".small",
+                            dragMode: "move",
+                            background: false,
+                            modal: false,
+                            movable: false,
+                        })
+                        this.status = true
+                    }else {
+                        location.href = "https://localhost:8443/homepage"
+                    }
+                })
+        }
+    })
+</script>
+</html>
