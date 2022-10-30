@@ -14,12 +14,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @Service
-public class CreateBlogService {
-
+@SuppressWarnings("all")
+public class BlogService {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
@@ -71,5 +72,26 @@ public class CreateBlogService {
             blogMapper.insertSelective(blog);
         }
         return map;
+    }
+
+    public List<Map<String, Object>> displayAroundBlog() {
+        List<Map<String, Object>> mapList = blogMapper.displayAroundBlog();
+        for (Map<String, Object> map : mapList) {
+            String userId = map.get("user_id") + "";
+            Map<String, Object> nickname = userMapper.getNickname(Long.valueOf(userId));
+            map.put("user_nickname", nickname.get("nickname"));
+            map.put("user_avatar","https://localhost:8443/static/upload/" + nickname.get("avatar"));
+            String[] image = map.get("image").toString().split(";");
+            for (int i = 0; i < image.length; i++) {
+                image[i] = "https://localhost:8443/static/upload/" + image[i];
+            }
+            map.put("image", image);
+            String[] video = map.get("video").toString().split(";");
+            for (int i = 0; i < video.length; i++) {
+                video[i] = "https://localhost:8443/static/upload/" + video[i];
+            }
+            map.put("video", video);
+        }
+        return mapList;
     }
 }

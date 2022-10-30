@@ -3,22 +3,20 @@ package cn_java_controller;
 import cn_java_PO.User;
 import cn_java_mapper.UserMapper;
 import cn_java_service_impl.LoginSystemService;
-import cn_java_utils.TokenRedis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.Map;
 
-@Controller
+@RestController
 @CrossOrigin(originPatterns = {"https://localhost:8443"}, allowCredentials = "true")
 @SuppressWarnings("all")
 public class LoginSystemController {
@@ -32,34 +30,12 @@ public class LoginSystemController {
     @Autowired
     private UserMapper userMapper;
 
-    @RequestMapping("/login")
-    public String login(){
-       return "/Login.html";
-    }
-
-
-    @RequestMapping("/register")
-    public String register(){
-        return "/Register.html";
-    }
-
-    @RequestMapping("/homepage")
-    public String homepage(){
-        return "/Homepage.html";
-    }
-
-    @RequestMapping("/")
-    public String index(){
-        return "/Homepage.html";
-    }
-
     /**
      * 检查是否登录
      * @param request
      * @return
      */
     @RequestMapping("/loginOrOut")
-    @ResponseBody
     public Map<String, Object> loginOrOut(HttpServletRequest request){
         //得到前端带过来的token
         String token = request.getHeader("token");
@@ -76,7 +52,6 @@ public class LoginSystemController {
      * @throws Exception
      */
     @RequestMapping("/loginExamine")
-    @ResponseBody
     public Map<String, Object> loginExamine(String account, String password) throws Exception{
         Map<String, Object> map = loginSystemService.userIsExists(account, password);
         return map;
@@ -88,7 +63,6 @@ public class LoginSystemController {
      * @return
      */
     @RequestMapping("/accountIsExists")
-    @ResponseBody
     public Map<String, Object> accountIsExists(String account){
         Map<String, Object> map = loginSystemService.accountIsExists(account);
         return map;
@@ -102,7 +76,6 @@ public class LoginSystemController {
      * @throws Exception
      */
     @RequestMapping("/registerUser")
-    @ResponseBody
     public Map<String, Object> registerUser(@Valid User user, BindingResult result) throws Exception{
         Map<String, Object> map = loginSystemService.registerUser(user, result);
         return map;

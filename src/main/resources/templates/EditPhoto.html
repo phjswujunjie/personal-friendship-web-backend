@@ -83,7 +83,7 @@
             uploadAvatar: function () {
                 var data = new FormData()
                 data.append("avatar", cropper.getCroppedCanvas().toDataURL("image/png"))
-                axios.post("https://localhost:8443/uploadAvatar", data, header)
+                axios.put("https://localhost:8443/users/avatars", data, header)
                     .then(res => {
                         if (res.data.loginStatus === false){
                             alert("您的账号在别处进行了登录!!")
@@ -102,7 +102,7 @@
             }
         },
         created() {
-            axios.post("https://localhost:8443/getAvatar", {}, header)
+            axios.get("https://localhost:8443/users/avatars",header)
                 .then(res => {
                     if(res.data.loginStatus === true){
                         document.getElementById("photo").src = "https://localhost:8443/static/upload/" + res.data.avatar

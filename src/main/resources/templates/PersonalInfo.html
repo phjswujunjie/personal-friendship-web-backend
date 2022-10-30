@@ -133,7 +133,7 @@
     new Vue({
         el: "#sidebar",
         created() {
-            axios.post("https://localhost:8443/getAllInfo", {}, header)
+            axios.get("https://localhost:8443/users",header)
                 .then(res => {
                     if (res.data.loginStatus === true) {
                         document.getElementById("photo").src = "https://localhost:8443/static/upload/" + res.data.avatar
@@ -156,7 +156,7 @@
                 datas.append("birthday", this.birthday)
                 datas.append("gender", this.gender)
                 datas.append("address", this.address.join("/"))
-                axios.post("https://localhost:8443/updateUserInfo", datas, header)
+                axios.put("https://localhost:8443/users", datas, header)
                     .then(res => {
                         if (res.data.loginStatus === true) {
                             this.$message({

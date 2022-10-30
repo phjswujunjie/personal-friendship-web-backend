@@ -174,7 +174,7 @@
                 }
                 data.append("text", this.text)
                 data.append("isPublic", this.is_public)
-                axios.post("https://localhost:8443/uploadBlog", data, header)
+                axios.post("https://localhost:8443/blogs", data, header)
                     .then(res => {
                        if (res.data.loginStatus === true){
                            this.$message({

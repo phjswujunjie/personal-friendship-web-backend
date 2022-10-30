@@ -51,12 +51,6 @@ Vue.component('headers', {
         }
     },
     methods:{
-        toHomepage: function () {
-            axios.post("https://localhost:8443/homepage", {}, header)
-        },
-        toPersonalInfo: function () {
-            axios.post("https://localhost:8443/personalInfo", {}, header)
-        },
         //退出登录,将token设置为空字符串即可
         loginOut: function () {
             window.localStorage.setItem("token", "")
@@ -66,7 +60,7 @@ Vue.component('headers', {
     created(){
         console.log("开始发送请求")
         //当头部被创建的时候向后端发送请求得到头像地址
-        axios.post("https://localhost:8443/getAvatar", {}, header)
+        axios.get("https://localhost:8443/users/avatars", header)
             .then(res => {
                 if(res.data.loginStatus){
                     this.image = "https://localhost:8443/static/upload/" + res.data.avatar

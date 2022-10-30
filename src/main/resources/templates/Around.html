@@ -112,7 +112,7 @@
             blogs: [],
         },
         created() {
-            axios.post("https://localhost:8443/getAroundBlog")
+            axios.get("https://localhost:8443/blogs")
                 .then(res => {
                     this.blogs = res.data
                 })

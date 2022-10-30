@@ -51,7 +51,7 @@
         },
         created(){
             //在Vue实例创建的时候发送异步请求将token作为请求头带去后端看用户是否登录
-           axios.post("https://localhost:8443/loginOrOut", {}, header)
+           axios.get("https://localhost:8443/loginOrOut", header)
                .then(res => {
                    // 如果没有登录,则将登陆状态status设置为false
                    if (res.data.loginStatus !== true){
