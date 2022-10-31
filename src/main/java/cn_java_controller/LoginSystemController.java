@@ -1,8 +1,11 @@
 package cn_java_controller;
 
+import cn_java_PO.Result;
 import cn_java_PO.User;
 import cn_java_mapper.UserMapper;
 import cn_java_service_impl.LoginSystemService;
+import com.google.gson.Gson;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
@@ -13,7 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.PrintWriter;
 import java.util.Map;
 
 @RestController
@@ -79,5 +84,13 @@ public class LoginSystemController {
     public Map<String, Object> registerUser(@Valid User user, BindingResult result) throws Exception{
         Map<String, Object> map = loginSystemService.registerUser(user, result);
         return map;
+    }
+
+    @RequestMapping("/test")
+    public void test(HttpServletResponse response) throws Exception{
+        response.setContentType("application/json;charset=utf-8");
+        Gson gson = new Gson();
+        PrintWriter writer = response.getWriter();
+        writer.write(gson.toJson(new Result(20000, "测试成功")));
     }
 }

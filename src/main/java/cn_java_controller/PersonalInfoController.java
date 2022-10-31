@@ -46,7 +46,7 @@ public class PersonalInfoController {
      * @throws Exception
      */
     @PutMapping("/avatars")
-    public Map<String, Object> uploadAvatar(String avatar, HttpServletRequest request) throws Exception{
+    public Map<String, Object> updateAvatar(String avatar, HttpServletRequest request) throws Exception{
         //得到token
         String token = request.getHeader("token");
         Map<String, Object> map = new HashMap<>();

@@ -58,6 +58,12 @@
                        this.status = false
                    }
                })
+            axios.get("https://localhost:8443/test", header)
+                .then(res => {
+                    console.log(typeof res.data)
+                    console.log(res.data)
+                    console.log(res.data.code)
+                })
         }
     })
 </script>
