@@ -1,5 +1,7 @@
 package cn_java_controller;
 
+import cn_java_PO.Code;
+import cn_java_PO.Result;
 import cn_java_PO.User;
 import cn_java_service_impl.PersonalInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +26,12 @@ public class PersonalInfoController {
      * @return
      */
     @GetMapping("/avatars")
-    public Map<String, Object> getAvatar(HttpServletRequest request){
+    public Result getAvatar(HttpServletRequest request){
         String token = request.getHeader("token");
-        Map<String, Object> map = new HashMap<>();
-        //如果token为null,直接返回没有登录的信息
-        if (token == null){
-            map.put("loginStatus", false);
-            return map;
-        }
         //将token带到Service层去redis中校验是否登录,登录则获取头像的地址
         Map<String, Object> avatar = personalInfoService.getAvatar(token);
         //将得到的结果返回给前端
-        return avatar;
+        return new Result(Code.SELECT_OK, avatar);
     }
 
     /**
@@ -46,45 +42,34 @@ public class PersonalInfoController {
      * @throws Exception
      */
     @PutMapping("/avatars")
-    public Map<String, Object> updateAvatar(String avatar, HttpServletRequest request) throws Exception{
+    public Result updateAvatar(String avatar, HttpServletRequest request) throws Exception{
         //得到token
         String token = request.getHeader("token");
-        Map<String, Object> map = new HashMap<>();
-        //如果token为null,直接返回没有登录的信息
-        if (token == null){
-            map.put("loginStatus", false);
-            return map;
+        int result = personalInfoService.uploadAvatar(avatar, token);
+        if (result == 1){
+            return new Result(Code.UPDATE_OK, "更新成功");
+        }else {
+            return new Result(Code.UPDATE_ERR, "更新失败");
         }
-        Map<String, Object> resultMap = personalInfoService.uploadAvatar(avatar, token);
-        return map;
     }
 
     //得到用户的全部信息
     @GetMapping
-    public Map<String, Object> getUserInfo(HttpServletRequest request){
+    public Result getUserInfo(HttpServletRequest request){
         String token = request.getHeader("token");
-        Map<String, Object> map = new HashMap<>();
-        //如果token为null,直接返回没有登录的信息
-        if (token == null){
-            map.put("loginStatus", false);
-            return map;
-        }
         Map<String, Object> allInfo = personalInfoService.getAllInfo(token);
-        System.out.println(allInfo);
-        return allInfo;
+        return new Result(Code.SELECT_OK, allInfo);
     }
 
     //更新用户的信息
     @PutMapping
-    public Map<String, Object> updateUserInfo(HttpServletRequest request, User user){
+    public Result updateUserInfo(HttpServletRequest request, User user){
         String token = request.getHeader("token");
-        Map<String, Object> map = new HashMap<>();
-        //如果token为null,直接返回没有登录的信息
-        if (token == null){
-            map.put("loginStatus", false);
-            return map;
+        int result = personalInfoService.updateUserInfo(token, user);
+        if (result == 1){
+            return new Result(Code.UPDATE_OK, "更新成功");
+        }else {
+            return new Result(Code.UPDATE_ERR, "更新失败");
         }
-        Map<String, Object> allInfo = personalInfoService.updateUserInfo(token, user);
-        return allInfo;
     }
 }

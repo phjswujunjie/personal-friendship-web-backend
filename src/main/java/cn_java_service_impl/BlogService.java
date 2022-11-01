@@ -28,50 +28,45 @@ public class BlogService {
     @Autowired
     private BlogMapper blogMapper;
 
-    public Map<String, Object> uploadBlog(MultipartFile[] files, String text, String isPublic, String token) throws Exception {
+    public int uploadBlog(MultipartFile[] files, String text, String isPublic, String token) throws Exception {
         ValueOperations<String, String> redis = stringRedisTemplate.opsForValue();
-        //去检测是否登录(根据传过来的token)
-        Map<String, Object> map = TokenRedis.hasLogin(redis, token);
-        //如果已经登录
-        if ((boolean) map.get("loginStatus")) {
-            Blog blog = new Blog();
-            String account = redis.get(token);
-            Map<String, Object> idByAccount = userMapper.getIdByAccount(account);
-            String id = idByAccount.get("id") + "";
-            Date date = new Date();
-            String image = "";
-            String video = "";
-            if (files != null) {
-                String realPath = ResourceUtils.getURL("classpath:").getPath();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/");
-                String path = simpleDateFormat.format(date);
-                for (MultipartFile file : files) {
-                    String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
-                    String fileName = UUID.randomUUID().toString() + suffix;
-                    File directory = new File(realPath + "/static/upload/" + path);
-                    if (!directory.exists()) {
-                        directory.mkdirs();
-                    }
-                    if ((".mp4").equals(suffix)){
-                        video += path + fileName + ";";
-                    }else {
-                        image += path + fileName + ";";
-                    }
-                    System.out.println("路径为" + directory.getPath());
-                    file.transferTo(new File(directory.getPath() + "/" + fileName));
+        Blog blog = new Blog();
+        String account = redis.get(token);
+        Map<String, Object> idByAccount = userMapper.getIdByAccount(account);
+        String id = idByAccount.get("id") + "";
+        Date date = new Date();
+        String image = "";
+        String video = "";
+        if (files != null) {
+            String realPath = ResourceUtils.getURL("classpath:").getPath();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/");
+            String path = simpleDateFormat.format(date);
+            for (MultipartFile file : files) {
+                String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+                String fileName = UUID.randomUUID().toString() + suffix;
+                File directory = new File(realPath + "/static/upload/" + path);
+                if (!directory.exists()) {
+                    directory.mkdirs();
                 }
+                if ((".mp4").equals(suffix)) {
+                    video += path + fileName + ";";
+                } else {
+                    image += path + fileName + ";";
+                }
+                System.out.println("路径为" + directory.getPath());
+                file.transferTo(new File(directory.getPath() + "/" + fileName));
             }
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String format = dateFormat.format(date);
-            blog.setCreateTime(format);
-            blog.setIsPublic(isPublic);
-            blog.setVideo(video);
-            blog.setImage(image);
-            blog.setContent(text);
-            blog.setUserId(Long.valueOf(id));
-            blogMapper.insertSelective(blog);
         }
-        return map;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String format = dateFormat.format(date);
+        blog.setCreateTime(format);
+        blog.setIsPublic(isPublic);
+        blog.setVideo(video);
+        blog.setImage(image);
+        blog.setContent(text);
+        blog.setUserId(Long.valueOf(id));
+        int i = blogMapper.insertSelective(blog);
+        return i;
     }
 
     public List<Map<String, Object>> displayAroundBlog() {
@@ -80,7 +75,7 @@ public class BlogService {
             String userId = map.get("user_id") + "";
             Map<String, Object> nickname = userMapper.getNickname(Long.valueOf(userId));
             map.put("user_nickname", nickname.get("nickname"));
-            map.put("user_avatar","https://localhost:8443/static/upload/" + nickname.get("avatar"));
+            map.put("user_avatar", "https://localhost:8443/static/upload/" + nickname.get("avatar"));
             String[] image = map.get("image").toString().split(";");
             for (int i = 0; i < image.length; i++) {
                 image[i] = "https://localhost:8443/static/upload/" + image[i];

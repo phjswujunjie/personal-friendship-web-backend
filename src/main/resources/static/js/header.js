@@ -62,8 +62,8 @@ Vue.component('headers', {
         //当头部被创建的时候向后端发送请求得到头像地址
         axios.get("https://localhost:8443/users/avatars", header)
             .then(res => {
-                if(res.data.loginStatus){
-                    this.image = "https://localhost:8443/static/upload/" + res.data.avatar
+                if(res.data.code === 20001){
+                    this.image = "https://localhost:8443/static/upload/" + res.data.data.avatar
                     this.status = true
                 }
             })

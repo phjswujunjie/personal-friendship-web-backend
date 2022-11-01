@@ -95,7 +95,7 @@
                             data.append("account", this.ruleForm.account)
                             axios.post("https://localhost:8443/accountIsExists", data)
                                 .then(res => {
-                                    if (res.data.result === 1) {
+                                    if (res.data.code === 40000) {
                                         callback(new Error("账号已经存在,请重新输入"));
                                     } else {
                                         callback();
@@ -169,8 +169,8 @@
                         data.append("password", this.ruleForm.pass)
                         axios.post("https://localhost:8443/registerUser", data)
                             .then(res => {
-                                if (res.data.result === 1) {
-                                    window.localStorage.setItem("token", res.data.token)
+                                if (res.data.code === 23001) {
+                                    window.localStorage.setItem("token", res.data.data.token)
                                     window.location.href = "https://localhost:8443/homepage"
                                 } else {
                                     alert("请输入正确的数据格式")

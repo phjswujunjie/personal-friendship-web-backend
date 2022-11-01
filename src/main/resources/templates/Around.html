@@ -114,7 +114,8 @@
         created() {
             axios.get("https://localhost:8443/blogs")
                 .then(res => {
-                    this.blogs = res.data
+                    console.log(res.data)
+                    this.blogs = res.data.data
                 })
         },
         methods: {

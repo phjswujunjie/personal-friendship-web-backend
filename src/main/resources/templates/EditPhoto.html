@@ -85,10 +85,10 @@
                 data.append("avatar", cropper.getCroppedCanvas().toDataURL("image/png"))
                 axios.put("https://localhost:8443/users/avatars", data, header)
                     .then(res => {
-                        if (res.data.loginStatus === false){
+                        if (res.data.code === 30000){
                             alert("您的账号在别处进行了登录!!")
                             location.href = "https://localhost:8443/homepage"
-                        }else {
+                        }else if(res.data.code === 22001){
                             this.$message({
                                 message: '修改成功!',
                                 type: 'success',
@@ -104,8 +104,8 @@
         created() {
             axios.get("https://localhost:8443/users/avatars",header)
                 .then(res => {
-                    if(res.data.loginStatus === true){
-                        document.getElementById("photo").src = "https://localhost:8443/static/upload/" + res.data.avatar
+                    if(res.data.code === 20001){
+                        document.getElementById("photo").src = "https://localhost:8443/static/upload/" + res.data.data.avatar
                         cropper = new Cropper(document.getElementById("photo"), {
                             aspectRatio: 1,
                             viewMode: 1,

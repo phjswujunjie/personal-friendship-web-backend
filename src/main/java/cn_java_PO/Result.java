@@ -17,14 +17,6 @@ public class Result {
         this.data = data;
     }
 
-    @Override
-    public String toString() {
-        return "{" +
-                "code=" + code +
-                ", data=" + data +
-                ", msg='" + msg + '\'' +
-                '}';
-    }
 
     public Integer getCode() {
         return code;

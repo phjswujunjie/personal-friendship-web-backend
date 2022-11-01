@@ -54,16 +54,10 @@
            axios.get("https://localhost:8443/loginOrOut", header)
                .then(res => {
                    // 如果没有登录,则将登陆状态status设置为false
-                   if (res.data.loginStatus !== true){
+                   if (res.data.code !== 30001){
                        this.status = false
                    }
                })
-            axios.get("https://localhost:8443/test", header)
-                .then(res => {
-                    console.log(typeof res.data)
-                    console.log(res.data)
-                    console.log(res.data.code)
-                })
         }
     })
 </script>

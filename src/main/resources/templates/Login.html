@@ -92,8 +92,8 @@
                     data: data,
                 }).then(res => {
                     //如果校验成功的话,则进行页面的跳转以及将token存放到localStorage中
-                    if (res.data.loginStatus === true){
-                        window.localStorage.setItem("token", res.data.token)
+                    if (res.data.code === 30001){
+                        window.localStorage.setItem("token", res.data.data.token)
                         window.location.href = "https://localhost:8443/homepage"
                     }else {
                         //展示提示信息
