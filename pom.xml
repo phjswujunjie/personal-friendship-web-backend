@@ -68,7 +68,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.6.0</version>
                 <configuration>
-                    <mainClass>cn_java_main.SpringApplicationStart</mainClass>
+                    <mainClass>com.friendship.SpringApplicationStart</mainClass>
                 </configuration>
                 <executions>
                     <execution>

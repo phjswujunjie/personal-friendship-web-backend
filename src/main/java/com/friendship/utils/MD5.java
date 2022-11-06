@@ -1,4 +1,4 @@
-package cn_java_utils;
+package com.friendship.utils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

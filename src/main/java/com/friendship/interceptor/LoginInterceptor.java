@@ -1,8 +1,8 @@
-package cn_java_interceptor;
+package com.friendship.interceptor;
 
-import cn_java_PO.Code;
-import cn_java_PO.Result;
-import cn_java_utils.TokenRedis;
+import com.friendship.pojo.Code;
+import com.friendship.pojo.Result;
+import com.friendship.utils.TokenRedis;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;

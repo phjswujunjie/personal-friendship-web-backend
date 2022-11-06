@@ -1,4 +1,4 @@
-package cn_java_controller;
+package com.friendship.controller;
 
 
 import org.springframework.stereotype.Controller;

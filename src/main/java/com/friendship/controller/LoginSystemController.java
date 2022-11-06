@@ -1,10 +1,10 @@
-package cn_java_controller;
+package com.friendship.controller;
 
-import cn_java_PO.Code;
-import cn_java_PO.Result;
-import cn_java_PO.User;
-import cn_java_mapper.UserMapper;
-import cn_java_service_impl.LoginSystemService;
+import com.friendship.pojo.Code;
+import com.friendship.pojo.Result;
+import com.friendship.pojo.User;
+import com.friendship.mapper.UserMapper;
+import com.friendship.service.impl.LoginSystemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.validation.BindingResult;

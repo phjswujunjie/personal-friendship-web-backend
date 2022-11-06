@@ -1,4 +1,4 @@
-package cn_java_config;
+package com.friendship.config;
 
 
 import org.springframework.beans.factory.annotation.Autowired;

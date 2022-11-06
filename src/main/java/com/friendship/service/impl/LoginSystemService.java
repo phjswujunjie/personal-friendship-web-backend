@@ -1,11 +1,11 @@
-package cn_java_service_impl;
+package com.friendship.service.impl;
 
-import cn_java_PO.Code;
-import cn_java_PO.Result;
-import cn_java_PO.User;
-import cn_java_mapper.UserMapper;
-import cn_java_utils.MD5;
-import cn_java_utils.TokenRedis;
+import com.friendship.pojo.Code;
+import com.friendship.pojo.Result;
+import com.friendship.pojo.User;
+import com.friendship.mapper.UserMapper;
+import com.friendship.utils.MD5;
+import com.friendship.utils.TokenRedis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;

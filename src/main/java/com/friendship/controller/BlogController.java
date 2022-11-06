@@ -1,8 +1,8 @@
-package cn_java_controller;
+package com.friendship.controller;
 
-import cn_java_PO.Code;
-import cn_java_PO.Result;
-import cn_java_service_impl.BlogService;
+import com.friendship.pojo.Code;
+import com.friendship.pojo.Result;
+import com.friendship.service.impl.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

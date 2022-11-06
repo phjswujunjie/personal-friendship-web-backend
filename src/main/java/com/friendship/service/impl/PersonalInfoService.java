@@ -1,7 +1,7 @@
-package cn_java_service_impl;
+package com.friendship.service.impl;
 
-import cn_java_PO.User;
-import cn_java_mapper.UserMapper;
+import com.friendship.pojo.User;
+import com.friendship.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
