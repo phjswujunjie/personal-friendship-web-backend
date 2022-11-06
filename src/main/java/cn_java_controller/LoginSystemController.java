@@ -5,25 +5,19 @@ import cn_java_PO.Result;
 import cn_java_PO.User;
 import cn_java_mapper.UserMapper;
 import cn_java_service_impl.LoginSystemService;
-import com.google.gson.Gson;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.PrintWriter;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(originPatterns = {"https://localhost:8443"}, allowCredentials = "true")
+@CrossOrigin(originPatterns = {"http://localhost:8081"}, allowCredentials = "true")
 @SuppressWarnings("all")
 public class LoginSystemController {
 

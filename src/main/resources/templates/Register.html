@@ -128,9 +128,7 @@
                 }
             };
             var validateTestCode = (rule, value, callback) => {
-                if (!value) {
-                    callback(new Error("请输入验证码"))
-                } else if (!verifyCode.validate(this.testCode)) {
+                if (!verifyCode.validate(this.testCode)) {
                     callback(new Error('验证码错误'));
                 } else {
                     callback()

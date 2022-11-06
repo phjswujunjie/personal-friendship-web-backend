@@ -6,13 +6,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="PersonalFriendshipWeb" />
+        <module name="personal-friendship-web" />
+        <module name="personal-friendship-web-pojo" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="PersonalFriendshipWeb" options="-parameters" />
+      <module name="personal-friendship-web" options="" />
+      <module name="personal-friendship-web-pojo" options="" />
     </option>
   </component>
 </project>

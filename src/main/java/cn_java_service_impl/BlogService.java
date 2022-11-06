@@ -3,7 +3,6 @@ package cn_java_service_impl;
 import cn_java_PO.Blog;
 import cn_java_mapper.BlogMapper;
 import cn_java_mapper.UserMapper;
-import cn_java_utils.TokenRedis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -31,14 +30,13 @@ public class BlogService {
     public int uploadBlog(MultipartFile[] files, String text, String isPublic, String token) throws Exception {
         ValueOperations<String, String> redis = stringRedisTemplate.opsForValue();
         Blog blog = new Blog();
-        String account = redis.get(token);
-        Map<String, Object> idByAccount = userMapper.getIdByAccount(account);
-        String id = idByAccount.get("id") + "";
+        String id = redis.get(token);
         Date date = new Date();
         String image = "";
         String video = "";
         if (files != null) {
-            String realPath = ResourceUtils.getURL("classpath:").getPath();
+            String realPath = ResourceUtils.toURI(ResourceUtils.getURL("classpath:")).getPath();
+//            String realPath = System.getProperty("user.dir");
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/");
             String path = simpleDateFormat.format(date);
             for (MultipartFile file : files) {
@@ -53,7 +51,6 @@ public class BlogService {
                 } else {
                     image += path + fileName + ";";
                 }
-                System.out.println("路径为" + directory.getPath());
                 file.transferTo(new File(directory.getPath() + "/" + fileName));
             }
         }
@@ -69,8 +66,13 @@ public class BlogService {
         return i;
     }
 
-    public List<Map<String, Object>> displayAroundBlog() {
-        List<Map<String, Object>> mapList = blogMapper.displayAroundBlog();
+    public List<Map<String, Object>> displayBlog(String... id) {
+        List<Map<String, Object>> mapList;
+        if (id.length == 0){
+            mapList = blogMapper.displayAroundBlog();
+        }else {
+            mapList = blogMapper.displayBlogById(Long.valueOf(id[0]));
+        }
         for (Map<String, Object> map : mapList) {
             String userId = map.get("user_id") + "";
             Map<String, Object> nickname = userMapper.getNickname(Long.valueOf(userId));
@@ -86,7 +88,12 @@ public class BlogService {
                 video[i] = "https://localhost:8443/static/upload/" + video[i];
             }
             map.put("video", video);
+            map.put("user_id", "http://localhost:8081/u/" + map.get("user_id"));
         }
         return mapList;
+    }
+
+    public int deleteBlogById(Long id){
+        return blogMapper.deleteBlogById(id);
     }
 }

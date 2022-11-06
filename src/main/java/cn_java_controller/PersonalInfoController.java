@@ -5,16 +5,15 @@ import cn_java_PO.Result;
 import cn_java_PO.User;
 import cn_java_service_impl.PersonalInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/users")
 @SuppressWarnings("all")
+@RequestMapping("/users")
+@CrossOrigin(originPatterns = {"http://localhost:8081/"}, allowCredentials = "true")
 public class PersonalInfoController {
 
     @Autowired
@@ -56,8 +55,18 @@ public class PersonalInfoController {
     //得到用户的全部信息
     @GetMapping
     public Result getUserInfo(HttpServletRequest request){
+//        System.out.println("访问了.............................");
         String token = request.getHeader("token");
-        Map<String, Object> allInfo = personalInfoService.getAllInfo(token);
+        Map<String, Object> allInfo = personalInfoService.getUserInfo(token);
+        return new Result(Code.SELECT_OK, allInfo);
+    }
+
+    @GetMapping("/{id}")
+    public Result getUserInfoById(@PathVariable String id){
+        Map<String, Object> allInfo = personalInfoService.getUserInfoById(id);
+        if (allInfo == null){
+            return new Result(Code.SELECT_ERR, "没有该用户");
+        }
         return new Result(Code.SELECT_OK, allInfo);
     }
 

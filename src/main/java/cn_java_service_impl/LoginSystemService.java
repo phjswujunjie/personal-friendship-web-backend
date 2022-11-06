@@ -12,6 +12,8 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -58,10 +60,12 @@ public class LoginSystemService {
         int result = userMapper.userIsExists(account, encryption);
         //如果存在
         if (result == 1) {
+            Map<String, Object> idByAccount = userMapper.getIdByAccount(account);
+            String id = idByAccount.get("id") + "";
             //生成token,将token返回给前端,并且将token存入redis来保持用户的登录状态
-            String token = UUID.randomUUID().toString().replaceAll("-", "") + account;
-            String avatar = userMapper.getAvatar(account);
-            TokenRedis.tokenToRedis(redis, token, account, avatar);
+            String token = UUID.randomUUID().toString().replaceAll("-", "") + id;
+            String avatar = userMapper.getAvatar(id);
+            TokenRedis.tokenToRedis(redis, token, id, avatar);
             map.put("token", token);
             map.put("loginStatus", true);
         } else {
@@ -79,9 +83,9 @@ public class LoginSystemService {
     public Result accountIsExists(String account) {
         int result = userMapper.accountIsExists(account);
         if (result == 1) {
-            return new Result(Code.ACCOUNT_ERR, "账号已经存在");
+            return new Result(Code.ACCOUNT_EXIST, "账号已经存在");
         }
-        return new Result(Code.ACCOUNT_OK, "账号处于空闲状态");
+        return new Result(Code.ACCOUNT_NON_EXIST, "账号处于空闲状态");
     }
 
     public Result registerUser(User user, BindingResult errorResult) throws Exception {
@@ -97,11 +101,16 @@ public class LoginSystemService {
             //对password进行加密
             user.setPassword(MD5.getEncryption(user.getPassword()));
 //            将数据插入数据库中,从而完成用户的注册
+            Date date = new Date();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String format = simpleDateFormat.format(date);
+            user.setRegisterTime(format);
             int result = userMapper.insertSelective(user);
             //生成token
-            String token = UUID.randomUUID().toString().replaceAll("-", "") + user.getAccount();
+            String id = userMapper.getIdByAccount(user.getAccount()).get("id") + "";
+            String token = UUID.randomUUID().toString().replaceAll("-", "") + id;
             //将token存放到redis中,并且将初始的头像信息也存放到redis中
-            TokenRedis.tokenToRedis(redis, token, user.getAccount(), "default.png");
+            TokenRedis.tokenToRedis(redis, token, id, "default.png");
             Map<String, Object> map = new HashMap<>();
             //返回是否成功的结果和token
             map.put("token", token);
