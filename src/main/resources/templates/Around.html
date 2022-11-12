@@ -68,7 +68,7 @@
 <div id="main">
     <div class="blogDiv" v-for="blog in blogs">
         <div class="ownerInfoDiv">
-            <a :href="blog.user_id"><img :src="blog.user_avatar" class="img-rounded" width="50px" height="50px"></a>
+            <a :href="blog.user_id"><img :src="blog.user_avatar" class="img-circle" width="50px" height="50px"></a>
             <span class="nicknameSpan">{{blog.user_nickname}}</span>
             <span class="createTimeSpan">发布于{{blog.create_time}}</span>
         </div>

@@ -23,7 +23,7 @@ Vue.component('headers', {
         "                <li class=\"background-style\" style='position: absolute;left: 400px' title=\"周围\"><a href='https://localhost:8443/around' style='cursor: pointer'><span class=\"glyphicon glyphicon-globe\" style=\"font-size: 23px;\"></span></a></li>\n" +
         "            </ul>\n" +
         "            <ul class=\"nav navbar-nav navbar-right\">\n" +
-        "                <li v-if=\"status===true\" v-cloak class=\"background-style\" style='position: absolute;left: 600px' title=\"个人\"><a :href='selfHomepageLocation'  style='cursor: pointer'><img :src=\"image\" style='position:relative;bottom: 4px'  width=\"32px\" height=\"32px\" class=\"img-rounded\" alt=\"头像\"/></a></li>\n" +
+        "                <li v-if=\"status===true\" v-cloak class=\"background-style\" style='position: absolute;left: 600px' title=\"个人\"><a :href='selfHomepageLocation'  style='cursor: pointer'><img :src=\"image\" style='position:relative;bottom: 4px'  width=\"32px\" height=\"32px\" class=\"img-circle\" alt=\"头像\"/></a></li>\n" +
         "                <li v-else v-cloak class=\"background-style\" style='position: absolute;left: 600px' title=\"个人\"><a href='https://localhost:8443/login'  style='cursor: pointer'><span class=\"glyphicon glyphicon-user\" style=\"font-size: 23px;\"></span></a></li>\n" +
         "                <li v-if=\"status===true\" class=\"background-style\" style='position: absolute;left: 800px'   title=\"发博客\" ><a href='https://localhost:8443/createBlog'   style='cursor: pointer'><span class=\"glyphicon glyphicon-edit\" style=\"font-size: 23px;\"></span></a></li>\n" +
         "                <li v-else class=\"background-style\"   title=\"发博客\" style='position: absolute;left: 800px' ><a href='https://localhost:8443/login' style='cursor: pointer'><span class=\"glyphicon glyphicon-edit\" style=\"font-size: 23px;\"></span></a></li>\n" +
@@ -65,7 +65,7 @@ Vue.component('headers', {
                 if(res.data.code === 20001){
                     this.image = "https://localhost:8443/static/upload/" + res.data.data.avatar
                     this.status = true
-                    this.selfHomepageLocation = "http://localhost:8081/u/" + res.data.data.id
+                    this.selfHomepageLocation = "http://localhost:8081/u/" + res.data.data.id + "/blog"
                     console.log(this.selfHomepageLocation)
                 }
             })

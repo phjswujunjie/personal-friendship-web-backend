@@ -4,7 +4,9 @@ import com.friendship.pojo.Code;
 import com.friendship.pojo.Result;
 import com.friendship.pojo.User;
 import com.friendship.service.impl.PersonalInfoService;
+import com.friendship.utils.TokenRedis;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +20,8 @@ public class PersonalInfoController {
 
     @Autowired
     private PersonalInfoService personalInfoService;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 根据token得到是否登录的状态信息,如果登录,则返回头像的地址,没有登录则展示没有登录的图标信息
@@ -62,10 +66,16 @@ public class PersonalInfoController {
     }
 
     @GetMapping("/{id}")
-    public Result getUserInfoById(@PathVariable String id){
+    public Result getUserInfoById(@PathVariable String id, HttpServletRequest request){
         Map<String, Object> allInfo = personalInfoService.getUserInfoById(id);
         if (allInfo == null){
             return new Result(Code.SELECT_ERR, "没有该用户");
+        }
+        if(request.getHeader("token") != null) {
+            boolean token = TokenRedis.isSelf(stringRedisTemplate.opsForValue(), request.getHeader("token"), Long.valueOf(id));
+            allInfo.put("isSelf", token);
+        }else {
+            allInfo.put("isSelf", false);
         }
         return new Result(Code.SELECT_OK, allInfo);
     }

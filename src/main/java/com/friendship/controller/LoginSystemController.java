@@ -5,15 +5,18 @@ import com.friendship.pojo.Result;
 import com.friendship.pojo.User;
 import com.friendship.mapper.UserMapper;
 import com.friendship.service.impl.LoginSystemService;
+import com.friendship.utils.TokenRedis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -88,5 +91,16 @@ public class LoginSystemController {
     @RequestMapping("/registerUser")
     public Result registerUser(@Valid User user, BindingResult result) throws Exception {
         return loginSystemService.registerUser(user, result);
+    }
+
+    //判断是否为本人
+    @RequestMapping("/isSelf/{id}")
+    public Result isSelf(@PathVariable Long id, HttpServletRequest request){
+        Map<String, Object> map = new HashMap<>();
+        boolean token = TokenRedis.isSelf(stringRedisTemplate.opsForValue(), request.getHeader("token"),id);
+       if (token){
+           return new Result(Code.IS_SELF, "是本人");
+       }
+       return new Result(Code.NOT_SELF, "不是本人");
     }
 }

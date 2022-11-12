@@ -7,7 +7,6 @@ import org.springframework.boot.web.server.ErrorPageRegistrar;
 import org.springframework.boot.web.server.ErrorPageRegistry;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import redis.clients.jedis.Jedis;
 
 //@Component
 //public class ErrorConfig implements ErrorPageRegistrar {

@@ -64,7 +64,7 @@ public class LoginSystemService {
             String id = idByAccount.get("id") + "";
             //生成token,将token返回给前端,并且将token存入redis来保持用户的登录状态
             String token = UUID.randomUUID().toString().replaceAll("-", "") + id;
-            String avatar = userMapper.getAvatar(id);
+            String avatar = userMapper.getAvatar(Long.valueOf(id));
             TokenRedis.tokenToRedis(redis, token, id, avatar);
             map.put("token", token);
             map.put("loginStatus", true);
@@ -105,7 +105,7 @@ public class LoginSystemService {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             String format = simpleDateFormat.format(date);
             user.setRegisterTime(format);
-            int result = userMapper.insertSelective(user);
+            int result = userMapper.insert(user);
             //生成token
             String id = userMapper.getIdByAccount(user.getAccount()).get("id") + "";
             String token = UUID.randomUUID().toString().replaceAll("-", "") + id;

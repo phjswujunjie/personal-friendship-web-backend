@@ -62,7 +62,7 @@ public class BlogService {
         blog.setImage(image);
         blog.setContent(text);
         blog.setUserId(Long.valueOf(id));
-        int i = blogMapper.insertSelective(blog);
+        int i = blogMapper.insert(blog);
         return i;
     }
 
@@ -88,7 +88,7 @@ public class BlogService {
                 video[i] = "https://localhost:8443/static/upload/" + video[i];
             }
             map.put("video", video);
-            map.put("user_id", "http://localhost:8081/u/" + map.get("user_id"));
+            map.put("user_id", "http://localhost:8081/u/" + map.get("user_id") + "/blog");
         }
         return mapList;
     }

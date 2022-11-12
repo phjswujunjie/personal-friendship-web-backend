@@ -53,4 +53,9 @@ public class TokenRedis {
         map.put("loginStatus", false);
         return map;
     }
+
+    @SuppressWarnings("all")
+    public static boolean isSelf(ValueOperations<String, String> redis, String token, Long id){
+        return id.equals(Long.valueOf(redis.get(token)));
+    }
 }

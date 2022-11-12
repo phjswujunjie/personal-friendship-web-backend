@@ -1,5 +1,6 @@
 package com.friendship.service.impl;
 
+import com.friendship.mapper.FriendlyRelationshipMapper;
 import com.friendship.pojo.User;
 import com.friendship.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class PersonalInfoService {
     private UserMapper userMapper;
 
     @Autowired
+    private FriendlyRelationshipMapper friendMapper;
+
+    @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
     public Map<String, Object> getAvatar(String token) {
@@ -31,7 +35,7 @@ public class PersonalInfoService {
         String avatar = redis.get(id + "avatar");
         //如果redis中没有该头像地址,则再去数据库中取出,再把头像地址存放到redis中
         if (avatar == null) {
-            avatar = userMapper.getAvatar(id);
+            avatar = userMapper.getAvatar(Long.valueOf(id));
             redis.set(id + "avatar", avatar, 7 * 24 * 60 * 60, TimeUnit.SECONDS);
         }
         map.put("id", id);
@@ -69,7 +73,7 @@ public class PersonalInfoService {
         bufferedOutputStream.close();
         fileOutputStream.close();
         //将头像的地址信息保存到数据库中
-        int i = userMapper.setAvatar(id, format + "/" + s + ".png");
+        int i = userMapper.setAvatar(Long.valueOf(id), format + "/" + s + ".png");
         //更新redis中头像的地址信息
         redis.set(id + "avatar", format + "/" + s + ".png", 7 * 24 * 60 * 60, TimeUnit.SECONDS);
         return i;
@@ -80,11 +84,17 @@ public class PersonalInfoService {
         //则先去redis中通过token得到id,再拿id在数据库中得到个人数据
         String id = redis.get(token);
         //返回结果信息
-        return userMapper.getAllInfoById(id);
+        return userMapper.getAllInfoById(Long.valueOf(id));
     }
 
     public Map<String, Object> getUserInfoById(String id) {
-        return userMapper.getAllInfoById(id);
+        Map<String, Object> allInfoById = userMapper.getAllInfoById(Long.valueOf(id));
+        Long userId = Long.valueOf(allInfoById.get("id") + "");
+        int allFollowNumber = friendMapper.getAllFollowNumber(userId);
+        int allFansNumber = friendMapper.getAllFansNumber(userId);
+        allInfoById.put("followNumber", allFollowNumber);
+        allInfoById.put("fansNumber", allFansNumber);
+        return allInfoById;
     }
 
     public int updateUserInfo(String token, User user) {
