@@ -61,14 +61,14 @@ public class PersonalInfoController {
     public Result getUserInfo(HttpServletRequest request){
 //        System.out.println("访问了.............................");
         String token = request.getHeader("token");
-        Map<String, Object> allInfo = personalInfoService.getUserInfo(token);
+        Map<Object, Object> allInfo = personalInfoService.getUserInfo(token);
         return new Result(Code.SELECT_OK, allInfo);
     }
 
     @GetMapping("/{id}")
     public Result getUserInfoById(@PathVariable String id, HttpServletRequest request){
-        Map<String, Object> allInfo = personalInfoService.getUserInfoById(id);
-        if (allInfo == null){
+        Map<Object, Object> allInfo = personalInfoService.getUserInfoById(id);
+        if (allInfo.size() == 2){
             return new Result(Code.SELECT_ERR, "没有该用户");
         }
         if(request.getHeader("token") != null) {

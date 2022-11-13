@@ -51,4 +51,9 @@ public class RedirectRequest {
     public String editPhoto() {
         return "/EditPhoto.html";
     }
+
+    @RequestMapping("/blogComment")
+    public String blogComment() {
+        return "/BlogComment.html";
+    }
 }

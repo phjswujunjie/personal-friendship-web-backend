@@ -66,7 +66,6 @@ Vue.component('headers', {
                     this.image = "https://localhost:8443/static/upload/" + res.data.data.avatar
                     this.status = true
                     this.selfHomepageLocation = "http://localhost:8081/u/" + res.data.data.id + "/blog"
-                    console.log(this.selfHomepageLocation)
                 }
             })
     }

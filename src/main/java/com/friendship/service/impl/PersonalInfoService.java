@@ -4,6 +4,7 @@ import com.friendship.mapper.FriendlyRelationshipMapper;
 import com.friendship.pojo.User;
 import com.friendship.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@SuppressWarnings("all")
 public class PersonalInfoService {
     @Autowired
     private UserMapper userMapper;
@@ -27,23 +29,31 @@ public class PersonalInfoService {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    /**
+     * 通过token来得到相应的用户头像信息和id信息
+     * @param token: 传过来的token
+     * @return: 返回封装了头像和id信息的对象
+     */
     public Map<String, Object> getAvatar(String token) {
         ValueOperations<String, String> redis = stringRedisTemplate.opsForValue();
+        HashOperations<String, Object, Object> hashOperations = stringRedisTemplate.opsForHash();
         Map<String, Object> map = new HashMap<>();
         //先去redis中通过token得到id,再拿id在redis中得到头像的地址
         String id = redis.get(token);
-        String avatar = redis.get(id + "avatar");
-        //如果redis中没有该头像地址,则再去数据库中取出,再把头像地址存放到redis中
-        if (avatar == null) {
-            avatar = userMapper.getAvatar(Long.valueOf(id));
-            redis.set(id + "avatar", avatar, 7 * 24 * 60 * 60, TimeUnit.SECONDS);
-        }
+        String avatar = (String) hashOperations.get("user_" + id, "avatar");
         map.put("id", id);
         map.put("avatar", avatar);
         //返回结果信息
         return map;
     }
 
+    /**
+     * 更新用户的头像信息
+     * @param avatar: 传过来的base64类型的数据
+     * @param token: 传过来的token
+     * @return: 返回是否更新成功的信息
+     * @throws Exception
+     */
     public int uploadAvatar(String avatar, String token) throws Exception {
         ValueOperations<String, String> redis = stringRedisTemplate.opsForValue();
         //则先去redis中通过token得到id,再拿id去存放头像的地址
@@ -75,21 +85,31 @@ public class PersonalInfoService {
         //将头像的地址信息保存到数据库中
         int i = userMapper.setAvatar(Long.valueOf(id), format + "/" + s + ".png");
         //更新redis中头像的地址信息
-        redis.set(id + "avatar", format + "/" + s + ".png", 7 * 24 * 60 * 60, TimeUnit.SECONDS);
+        stringRedisTemplate.opsForHash().put("user_" + id, "avatar", format + "/" + s + ".png");
         return i;
     }
 
-    public Map<String, Object> getUserInfo(String token) {
+    /**
+     * 用户登录时访问个人信息页面时得到的用户信息
+     * @param token: 传过来的token
+     * @return: 返回包含本人基本信息的数据
+     */
+    public Map<Object, Object> getUserInfo(String token) {
         ValueOperations<String, String> redis = stringRedisTemplate.opsForValue();
-        //则先去redis中通过token得到id,再拿id在数据库中得到个人数据
+        //则先去redis中通过token得到id,再拿id在redis中得到个人数据
         String id = redis.get(token);
         //返回结果信息
-        return userMapper.getAllInfoById(Long.valueOf(id));
+        return stringRedisTemplate.opsForHash().entries("user_" + id);
     }
 
-    public Map<String, Object> getUserInfoById(String id) {
-        Map<String, Object> allInfoById = userMapper.getAllInfoById(Long.valueOf(id));
-        Long userId = Long.valueOf(allInfoById.get("id") + "");
+    /**
+     * 用户访问别人或者自己主页时看到的用户信息
+     * @param id: 被访问者的用户id
+     * @return: 返回被访问者的基本信息
+     */
+    public Map<Object, Object> getUserInfoById(String id) {
+        Map<Object, Object> allInfoById = stringRedisTemplate.opsForHash().entries("user_" + id);
+        Long userId = Long.valueOf(id);
         int allFollowNumber = friendMapper.getAllFollowNumber(userId);
         int allFansNumber = friendMapper.getAllFansNumber(userId);
         allInfoById.put("followNumber", allFollowNumber);
@@ -97,11 +117,21 @@ public class PersonalInfoService {
         return allInfoById;
     }
 
+    /**
+     * 更新用户的基本信息
+     * @param token: 传过来的token
+     * @param user: 用户更新的数据
+     * @return: 返回是否更新成功
+     */
     public int updateUserInfo(String token, User user) {
         ValueOperations<String, String> redis = stringRedisTemplate.opsForValue();
         //则先去redis中通过token得到id,再拿id在数据库中更新个人数据
         String id = redis.get(token);
         user.setId(Long.valueOf(id));
-        return userMapper.UpdateUserInfoById(user);
+        int i = userMapper.UpdateUserInfoById(user);
+        Map<String, Object> allInfoById = userMapper.getAllInfoById(Long.valueOf(id));
+        allInfoById.put("id", allInfoById.get("id") + "");
+        stringRedisTemplate.opsForHash().putAll("user_" + id, allInfoById);
+        return i;
     }
 }

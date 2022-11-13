@@ -12,7 +12,7 @@
     <link href="../static/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="../static/css/element.css" rel="stylesheet"/>
     <title>Title</title>
-    <style>
+    <style rel="stylesheet">
         .blogDiv {
             width: 670px;
             margin: 12px auto 0;
@@ -90,6 +90,42 @@
             border-radius: 15px;
             cursor: not-allowed;
         }
+
+        .el-icon-chat-dot-square:hover {
+            border-radius: 10px;
+            background-color: #ff820047;
+        }
+
+        .commentInput {
+            border: none;
+            background-color: #f0f1f4;
+            height: 38px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            outline: none;
+        }
+
+        .commentInput:focus {
+            border: 1px solid #ff8200;
+            background-color: white;
+        }
+
+        .commentButton {
+            width: 70px;
+            background-color: #ff8200;
+            color: white;
+            font-weight: bolder;
+            height: 34px;
+            border: none;
+            border-radius: 17px;
+            margin-left: 520px;
+        }
+
+        .controlCommentButton {
+            cursor: not-allowed;
+            background-color: #fec42d99;!important;
+        }
     </style>
 </head>
 <body style="background-color: #F5F5F5">
@@ -97,8 +133,8 @@
     <headers></headers>
 </div>
 <div id="main">
-    <div class="blogDiv" v-for="blog in blogs">
-        <div class="ownerInfoDiv">
+    <div class="blogDiv">
+        <div class="ownerInfoDiv" v-if="blog">
             <a :href="blog.user_url"><img :src="blog.user_avatar" class="img-circle" width="50px" height="50px"
                                           alt="头像"></a>
             <button v-if="blog.login_status && blog.is_self"
@@ -126,7 +162,7 @@
                 <i class="el-icon-check"></i>&nbsp;互相关注
             </button>
         </div>
-        <div class="blogInfoDiv">
+        <div class="blogInfoDiv" v-if="blog">
             <div style="margin-left: 10px;width: 566px;word-break: break-all;word-wrap: break-word">{{blog.content}}
             </div>
             <div style="margin-top: 15px;overflow: hidden">
@@ -142,20 +178,30 @@
             </div>
         </div>
         <div style="margin-left: 200px;margin-top: 25px">
-            <span @click="toComment" :id="blog.id" class="el-icon-chat-dot-square"
-                  style="margin-right: 150px;cursor: pointer;font-size: 20px;color:grey;"></span>
+            <span class="el-icon-chat-dot-square"
+                  style="margin-right: 150px;cursor: pointer;font-size: 20px;color:#ff82008f;"></span>
             <span class="glyphicon glyphicon-thumbs-up" style="cursor: pointer;font-size: 20px;color: grey"></span>
         </div>
+        <hr style="margin-bottom: 5px"/>
+        <div v-if="blog" class="commentDiv">
+            <img :src="blog.selfAvatar" class="img-circle" width="35px">
+            <input type="text" v-model="comment" class="commentInput" placeholder="发布你的评论" v-if="blog.selfAvatar"
+                   style="width: 90%">
+            <input type="text" v-model="comment" class="commentInput" placeholder="发布你的评论" v-else style="width: 100%">
+            <button class="commentButton" :class="{controlCommentButton: comment.trim()===''}">评论</button>
+        </div>
+        <hr/>
+        <span style="margin-right: 40px;cursor: pointer">按热度</span>
+        <span  style="cursor: pointer">按时间</span>
     </div>
-    <div v-if="blogs.length===0" style="text-align: center;color: grey"><h5>~~还没有人分享博客,快去添加您的博客吧!~~</h5></div>
-</div>
-<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="imageModal">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"
-                                                                                              style="font-size: 35px;margin-right: 10px">&times;</span>
-            </button>
-            <img src="" alt="图像" id="originalImage">
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="imageModal">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"
+                                                                                                  style="font-size: 35px;margin-right: 10px">&times;</span>
+                </button>
+                <img src="" alt="图像" id="originalImage">
+            </div>
         </div>
     </div>
 </div>
@@ -165,13 +211,14 @@
     new Vue({
         el: "#main",
         data: {
-            blogs: [],
+            blog: null,
+            comment:"",
         },
         created() {
-            axios.get("https://localhost:8443/blogs/around", header)
+            axios.get("https://localhost:8443/blogs/" + location.search.split("=")[1], header)
                 .then(res => {
-                    this.blogs = res.data.data
-                    console.log(this.blogs)
+                    this.blog = res.data.data
+                    console.log(res.data)
                 })
         },
         methods: {
@@ -204,9 +251,6 @@
                     message: '请先进行登录',
                     type: 'error'
                 });
-            },
-            toComment: function (e) {
-                window.location.href = "https://localhost:8443/blogComment?blog_identify=" + e.target.id
             },
             changeImage: function (e) {
                 let image = e.target

@@ -24,7 +24,7 @@ public class FriendController {
     @GetMapping("/{otherId}")
     public Result queryIsFollower(@PathVariable Long otherId, HttpServletRequest request){
         String token = request.getHeader("token");
-        int i = friendService.queryIsFollower(token, otherId);
+        int i = friendService.queryRelation(token, otherId);
         if(i == 2){
             return new Result(Code.IS_A_FRIEND, "是朋友关系");
         }else if (i == 0){

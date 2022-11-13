@@ -33,17 +33,23 @@ public class BlogController {
     }
 
     //得到附近全部的博客信息
-    @GetMapping
-    public Result displayAroundBlog(){
-        List<Map<String, Object>> mapList = blogService.displayBlog();
+    @GetMapping("/around")
+    public Result displayAroundBlog(HttpServletRequest request){
+        List<Map<String, Object>> mapList = blogService.displayBlog(request);
         return new Result(Code.SELECT_OK, mapList);
     }
 
     //根据id得到该用户的全部博客信息
-    @GetMapping("/{id}")
-    public Result displayBlogById(@PathVariable String id){
-        List<Map<String, Object>> mapList = blogService.displayBlog(id);
+    @GetMapping("/users/{id}")
+    public Result displayBlogById(@PathVariable String id, HttpServletRequest request){
+        List<Map<String, Object>> mapList = blogService.displayBlog(request, id);
         return new Result(Code.SELECT_OK, mapList);
+    }
+
+    @GetMapping("/{id}")
+    public Result commentBlogById(@PathVariable Long id, HttpServletRequest request){
+        Map<String, Object> map = blogService.commentBlogById(request, id);
+        return new Result(Code.SELECT_OK, map);
     }
 
     @DeleteMapping("/{id}")
