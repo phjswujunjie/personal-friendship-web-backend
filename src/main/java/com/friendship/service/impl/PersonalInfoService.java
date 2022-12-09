@@ -134,4 +134,18 @@ public class PersonalInfoService {
         stringRedisTemplate.opsForHash().putAll("user_" + id, allInfoById);
         return i;
     }
+
+    /**
+     * 根据条件搜索查询符合的用户
+     * @param condition
+     */
+    public List<Map<String, Object>> searchUserByCondition(String condition){
+        List<Map<String, Object>> userByCondition = userMapper.getUserByCondition(condition);
+        List<Map<String, Object>> mapList = userByCondition.stream().map(p -> {
+            p.put("id", "http://localhost:8081/u/" + p.get("id") + "/blog");
+            p.put("avatar", "http://localhost:8080/static/upload/" + p.get("avatar"));
+            return p;
+        }).toList();
+        return mapList;
+    }
 }

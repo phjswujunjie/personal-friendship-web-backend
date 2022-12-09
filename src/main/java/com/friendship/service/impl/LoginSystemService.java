@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,9 +80,9 @@ public class LoginSystemService {
     public Result accountIsExists(String account) {
         int result = userMapper.accountIsExists(account);
         if (result == 1) {
-            return new Result(Code.ACCOUNT_EXIST, "账号已经存在");
+            return new Result(Code.ACCOUNT_EXIST.getCode(), "账号已经存在");
         }
-        return new Result(Code.ACCOUNT_NON_EXIST, "账号处于空闲状态");
+        return new Result(Code.ACCOUNT_NON_EXIST.getCode(), "账号处于空闲状态");
     }
 
     /**
@@ -97,14 +99,12 @@ public class LoginSystemService {
             int result1 = userMapper.accountIsExists(user.getAccount());
             //如果已经存在则直接返回错误信息
             if (result1 == 1) {
-                return new Result(Code.INSERT_ERR, "注册失败");
+                return new Result(Code.INSERT_ERR.getCode(), "注册失败");
             }
             //对password进行加密
             user.setPassword(MD5.getEncryption(user.getPassword()));
 //            将数据插入数据库中,从而完成用户的注册
-            Date date = new Date();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String format = simpleDateFormat.format(date);
+            String format = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now());
             user.setRegisterTime(format);
             int result = userMapper.insert(user);
             //生成token
@@ -117,8 +117,8 @@ public class LoginSystemService {
             Map<String, Object> map = new HashMap<>();
             //返回是否成功的结果和token
             map.put("token", token);
-            return new Result(Code.INSERT_OK, map);
+            return new Result(Code.INSERT_OK.getCode(), map);
         }
-        return new Result(Code.INSERT_ERR, "注册失败");
+        return new Result(Code.INSERT_ERR.getCode(), "注册失败");
     }
 }

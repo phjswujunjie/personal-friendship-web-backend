@@ -1,5 +1,6 @@
 package com.friendship.service.impl;
 
+import com.friendship.mapper.BlogLikeMapper;
 import com.friendship.pojo.Blog;
 import com.friendship.mapper.BlogMapper;
 import com.friendship.mapper.UserMapper;
@@ -15,10 +16,13 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Service
 @SuppressWarnings("all")
@@ -31,6 +35,8 @@ public class BlogService {
     private BlogMapper blogMapper;
     @Autowired
     private FriendService friendService;
+    @Autowired
+    private BlogLikeMapper blogLikeMapper;
 
     /**
      * 用来上传博客
@@ -46,14 +52,13 @@ public class BlogService {
         ValueOperations<String, String> redis = stringRedisTemplate.opsForValue();
         Blog blog = new Blog();
         String id = redis.get(token);
-        Date date = new Date();
+        LocalDate date = LocalDate.now();
         String image = "";
         String video = "";
         if (files != null) {
             String realPath = ResourceUtils.toURI(ResourceUtils.getURL("classpath:")).getPath();
 //            String realPath = System.getProperty("user.dir");
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd/");
-            String path = simpleDateFormat.format(date);
+            String path = DateTimeFormatter.ofPattern("yyyy/MM/dd/").format(date);
             for (MultipartFile file : files) {
                 String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
                 String fileName = UUID.randomUUID().toString() + suffix;
@@ -69,8 +74,7 @@ public class BlogService {
                 file.transferTo(new File(directory.getPath() + "/" + fileName));
             }
         }
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String format = dateFormat.format(date);
+        String format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(date);
         blog.setCreateTime(format);
         blog.setIsPublic(isPublic);
         blog.setVideo(video);
@@ -90,14 +94,12 @@ public class BlogService {
      */
     public List<Map<String, Object>> displayBlog(HttpServletRequest request, String... id) {
         List<Map<String, Object>> mapList;
-        Boolean loginStatus = null;
-        String token = null;
+        //如果id数组长度为0则代表是访问了around这个页面
+        String token = request.getHeader("token");
+        Map<String, Object> loginMap = TokenRedis.hasLogin(stringRedisTemplate, token);
+        //通过token去判断登录情况
+        Boolean loginStatus = (Boolean) loginMap.get("loginStatus");
         if (id.length == 0) {
-            //如果id数组长度为0则代表是访问了around这个页面
-            token = request.getHeader("token");
-            Map<String, Object> map = TokenRedis.hasLogin(stringRedisTemplate, token);
-            //通过token去判断登录情况
-            loginStatus = (Boolean) map.get("loginStatus");
             //得到公开的博客信息
             mapList = blogMapper.displayAroundBlog();
         } else {
@@ -106,18 +108,19 @@ public class BlogService {
         for (Map<String, Object> map : mapList) {
             String userId = map.get("user_id") + "";
             processBlogData(map);
-            if (id.length == 0) {
-                //访问around页面时把登录状态信息封装到每一条博客信息中
-                map.put("login_status", loginStatus);
-                if (loginStatus) {
-                    //如果登录了, 就判断该博客的拥有者是否为本人
-                    boolean isSelf = TokenRedis.isSelf(stringRedisTemplate.opsForValue(), token, Long.valueOf(userId));
-                    map.put("is_self", isSelf);
-                    //如果不是本人的博客, 则查询此博客的拥有者与本人之间的关系
-                    if (!isSelf) {
-                        int i = friendService.queryRelation(token, Long.valueOf(userId));
-                        map.put("relation", i);
-                    }
+            //访问around和主页博客页面时把登录状态信息封装到每一条博客信息中
+            map.put("loginStatus", loginStatus);
+            if (loginStatus) {
+                //如果登录, 还查询用户是否点赞了该博客
+                String realUserId = stringRedisTemplate.opsForValue().get(request.getHeader("token"));
+                map.put("isLike", blogLikeMapper.queryIsLike(Long.valueOf(realUserId), Long.valueOf(map.get("id") + "")));
+                //如果登录了, 就判断该博客的拥有者是否为本人
+                boolean isSelf = TokenRedis.isSelf(stringRedisTemplate.opsForValue(), token, Long.valueOf(userId));
+                map.put("isSelf", isSelf);
+                //如果不是本人的博客, 则查询此博客的拥有者与本人之间的关系
+                if (!isSelf) {
+                    int i = friendService.queryRelation(token, Long.valueOf(userId));
+                    map.put("relation", i);
                 }
             }
         }
@@ -152,20 +155,23 @@ public class BlogService {
             Map<String, Object> statusMap = TokenRedis.hasLogin(stringRedisTemplate, token);
             //通过token去判断登录情况
             loginStatus = (Boolean) statusMap.get("loginStatus");
-        }else {
+        } else {
             loginStatus = false;
         }
         Map<String, Object> map = blogMapper.getBlogById(id);
         String userId = map.get("user_id") + "";
         processBlogData(map);
         //访问around页面时把登录状态信息封装到每一条博客信息中
-        map.put("login_status", loginStatus);
+        map.put("loginStatus", loginStatus);
         if (loginStatus) {
             //如果登录了, 就判断该博客的拥有者是否为本人
             boolean isSelf = TokenRedis.isSelf(stringRedisTemplate.opsForValue(), token, Long.valueOf(userId));
+            //查询此博客是否被用户自己点赞
+            map.put("isLike", blogLikeMapper.queryIsLike(Long.valueOf(selfId), Long.valueOf(map.get("id") + "")));
             map.put("is_self", isSelf);
             map.put("selfId", selfId);
-            map.put("selfAvatar", "https://localhost:8443/static/upload/" + selfAvatar);
+            map.put("selfNickname", stringRedisTemplate.opsForHash().get("user_" + selfId, "nickname"));
+            map.put("selfAvatar", "http://localhost:8080/static/upload/" + selfAvatar);
             //如果不是本人的博客, 则查询此博客的拥有者与本人之间的关系
             if (!isSelf) {
                 int i = friendService.queryRelation(token, Long.valueOf(userId));
@@ -183,17 +189,13 @@ public class BlogService {
     private void processBlogData(Map<String, Object> map) {
         String userId = map.get("user_id") + "";
         map.put("user_nickname", stringRedisTemplate.opsForHash().get("user_" + userId, "nickname"));
-        map.put("user_avatar", "https://localhost:8443/static/upload/" + stringRedisTemplate.opsForHash().get("user_" + userId, "avatar"));
+        map.put("user_avatar", "http://localhost:8080/static/upload/" + stringRedisTemplate.opsForHash().get("user_" + userId, "avatar"));
         String[] image = map.get("image").toString().split(";");
-        for (int i = 0; i < image.length; i++) {
-            image[i] = "https://localhost:8443/static/upload/" + image[i];
-        }
-        map.put("image", image);
+        List<String> imageStream = Stream.of(image).map(i -> "http://localhost:8080/static/upload/" + i).toList();
+        map.put("image", imageStream);
         String[] video = map.get("video").toString().split(";");
-        for (int i = 0; i < video.length; i++) {
-            video[i] = "https://localhost:8443/static/upload/" + video[i];
-        }
-        map.put("video", video);
+        List<String> videoList = Stream.of(video).map(v -> "http://localhost:8080/static/upload/" + v).toList();
+        map.put("video", videoList);
         map.put("user_url", "http://localhost:8081/u/" + map.get("user_id") + "/blog");
     }
 }

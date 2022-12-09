@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+/**
+ * 处理用户个人信息的增删查改操作的类
+ */
 @RestController
 @SuppressWarnings("all")
 @RequestMapping("/users")
@@ -34,7 +37,7 @@ public class PersonalInfoController {
         //将token带到Service层去redis中校验是否登录,登录则获取头像的地址
         Map<String, Object> avatar = personalInfoService.getAvatar(token);
         //将得到的结果返回给前端
-        return new Result(Code.SELECT_OK, avatar);
+        return new Result(Code.SELECT_OK.getCode(), avatar);
     }
 
     /**
@@ -50,9 +53,9 @@ public class PersonalInfoController {
         String token = request.getHeader("token");
         int result = personalInfoService.uploadAvatar(avatar, token);
         if (result == 1){
-            return new Result(Code.UPDATE_OK, "更新成功");
+            return new Result(Code.UPDATE_OK.getCode(), "更新成功");
         }else {
-            return new Result(Code.UPDATE_ERR, "更新失败");
+            return new Result(Code.UPDATE_ERR.getCode(), "更新失败");
         }
     }
 
@@ -62,14 +65,14 @@ public class PersonalInfoController {
 //        System.out.println("访问了.............................");
         String token = request.getHeader("token");
         Map<Object, Object> allInfo = personalInfoService.getUserInfo(token);
-        return new Result(Code.SELECT_OK, allInfo);
+        return new Result(Code.SELECT_OK.getCode(), allInfo);
     }
 
     @GetMapping("/{id}")
     public Result getUserInfoById(@PathVariable String id, HttpServletRequest request){
         Map<Object, Object> allInfo = personalInfoService.getUserInfoById(id);
         if (allInfo.size() == 2){
-            return new Result(Code.SELECT_ERR, "没有该用户");
+            return new Result(Code.SELECT_ERR.getCode(), "没有该用户");
         }
         if(request.getHeader("token") != null) {
             boolean token = TokenRedis.isSelf(stringRedisTemplate.opsForValue(), request.getHeader("token"), Long.valueOf(id));
@@ -77,7 +80,7 @@ public class PersonalInfoController {
         }else {
             allInfo.put("isSelf", false);
         }
-        return new Result(Code.SELECT_OK, allInfo);
+        return new Result(Code.SELECT_OK.getCode(), allInfo);
     }
 
     //更新用户的信息
@@ -86,9 +89,15 @@ public class PersonalInfoController {
         String token = request.getHeader("token");
         int result = personalInfoService.updateUserInfo(token, user);
         if (result == 1){
-            return new Result(Code.UPDATE_OK, "更新成功");
+            return new Result(Code.UPDATE_OK.getCode(), "更新成功");
         }else {
-            return new Result(Code.UPDATE_ERR, "更新失败");
+            return new Result(Code.UPDATE_ERR.getCode(), "更新失败");
         }
+    }
+
+    //搜索查询用户
+    @GetMapping("/search/{condition}")
+    public Result searchUser(@PathVariable String condition){
+        return new Result(Code.SELECT_OK.getCode(),  personalInfoService.searchUserByCondition(condition));
     }
 }

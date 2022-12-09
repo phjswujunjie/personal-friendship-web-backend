@@ -39,7 +39,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         Gson gson = new Gson();
         response.setContentType("application/json;charset=utf-8");
         ServletOutputStream outputStream = response.getOutputStream();
-        outputStream.write(gson.toJson(new Result(Code.LOGIN_ERR, "登录信息失效, 请重新登陆")).getBytes(StandardCharsets.UTF_8));
+        outputStream.write(gson.toJson(new Result(Code.LOGIN_ERR.getCode(), "登录信息失效, 请重新登陆")).getBytes(StandardCharsets.UTF_8));
         return false;
     }
 }

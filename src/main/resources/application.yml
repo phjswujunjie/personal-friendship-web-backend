@@ -1,10 +1,10 @@
 #配置https协议
 server:
-  ssl:
-    key-store: classpath:8442956_learninglog.top.pfx
-    key-store-password: eTSP6iR4
+#  ssl:
+#    key-store: classpath:8442956_learninglog.top.pfx
+#    key-store-password: eTSP6iR4
   #配置端口号
-  port: 8443
+  port: 8080
   #配置编码
   servlet:
     encoding:

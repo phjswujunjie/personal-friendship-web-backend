@@ -19,6 +19,9 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 处理注册登录以及权限控制的类
+ */
 @RestController
 @CrossOrigin(originPatterns = {"http://localhost:8081"}, allowCredentials = "true")
 @SuppressWarnings("all")
@@ -46,9 +49,9 @@ public class LoginSystemController {
         //去业务层进行判断
         Map<String, Object> map = loginSystemService.loginOrOut(token);
         if ((boolean) map.get("loginStatus")) {
-            return new Result(Code.LOGIN_OK, "登陆成功");
+            return new Result(Code.LOGIN_OK.getCode(), "登陆成功");
         }
-        return new Result(Code.LOGIN_ERR, "登陆信息不正确");
+        return new Result(Code.LOGIN_ERR.getCode(), "登陆信息不正确");
     }
 
     /**
@@ -64,9 +67,9 @@ public class LoginSystemController {
         Map<String, Object> map = loginSystemService.userIsExists(account, password);
         if ((boolean) map.get("loginStatus")) {
             map.remove("loginStatus");
-            return new Result(Code.LOGIN_OK, map);
+            return new Result(Code.LOGIN_OK.getCode(), map);
         }
-        return new Result(Code.LOGIN_ERR, "登陆信息不正确");
+        return new Result(Code.LOGIN_ERR.getCode(), "登陆信息不正确");
     }
 
     /**
@@ -99,8 +102,8 @@ public class LoginSystemController {
         Map<String, Object> map = new HashMap<>();
         boolean token = TokenRedis.isSelf(stringRedisTemplate.opsForValue(), request.getHeader("token"),id);
        if (token){
-           return new Result(Code.IS_SELF, "是本人");
+           return new Result(Code.IS_SELF.getCode(), "是本人");
        }
-       return new Result(Code.NOT_SELF, "不是本人");
+       return new Result(Code.NOT_SELF.getCode(), "不是本人");
     }
 }

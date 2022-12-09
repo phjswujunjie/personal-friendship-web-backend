@@ -4,6 +4,7 @@ import com.friendship.mapper.FriendlyRelationshipMapper;
 import com.friendship.mapper.UserMapper;
 import com.friendship.pojo.FriendlyRelationship;
 import com.friendship.pojo.User;
+import com.friendship.utils.TokenRedis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -47,21 +48,29 @@ public class FriendService {
      * @return: 返回两个用户之间的关系(2代表好友关系, 0代表没有关系, 4代表了访问者关注了被访问者, 8代表被访问者为访问者的粉丝)
      */
     public int queryRelation(String token, Long anotherUserId) {
-        Long userId = Long.valueOf(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(token)));
-        List<Map<String, Object>> mapList = friendMapper.queryRelation(userId, anotherUserId);
-        //如果结果数量为0则代表没有关系, 为2则代表为朋友关系
-        if (mapList.size() != 1) {
-            return mapList.size();
+        if (token != null){
+            Map<String, Object> map1 = TokenRedis.hasLogin(stringRedisTemplate, token);
+            if (!(boolean)map1.get("loginStatus")){
+                return -1;
+            }
+            Long userId = Long.valueOf(Objects.requireNonNull(stringRedisTemplate.opsForValue().get(token)));
+            List<Map<String, Object>> mapList = friendMapper.queryRelation(userId, anotherUserId);
+            //如果结果数量为0则代表没有关系, 为2则代表为朋友关系
+            if (mapList.size() != 1) {
+                return mapList.size();
+            }
+            //为1则代表两个人之间有关注关系(但是不知道谁关注了谁)
+            Map<String, Object> map = mapList.get(0);
+            Long user_id = Long.valueOf(map.get("user_id") + "");
+            if (user_id.equals(userId)) {
+                //访问者关注了被访问者
+                return 4;
+            }
+            //被访问者为访问者的粉丝
+            return 8;
+        }else {
+            return -1;
         }
-        //为1则代表两个人之间有关注关系(但是不知道谁关注了谁)
-        Map<String, Object> map = mapList.get(0);
-        Long user_id = Long.valueOf(map.get("user_id") + "");
-        if (user_id.equals(userId)) {
-            //访问者关注了被访问者
-            return 4;
-        }
-        //被访问者为访问者的粉丝
-        return 8;
     }
 
     /**
@@ -125,7 +134,7 @@ public class FriendService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("homepageLocation", "http://localhost:8081/u/" + user.getId() + "/blog");
                 map.put("id", user.getId());
-                map.put("avatar", "https://localhost:8443/static/upload/" + user.getAvatar());
+                map.put("avatar", "http://localhost:8080/static/upload/" + user.getAvatar());
                 map.put("nickname", user.getNickname());
                 map.put("introduction", user.getIntroduction());
                 listFriend.add(map);
