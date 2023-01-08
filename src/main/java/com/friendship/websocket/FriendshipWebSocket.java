@@ -57,6 +57,7 @@ public class FriendshipWebSocket {
         Map map = g.fromJson(message, Map.class);
         System.out.println("传过来的数据" + message);
         if (map.size() == 2) {
+            //用户点击了某个朋友的聊天窗口则将所有的未读信息清除
             userId = Long.valueOf((String) map.get("user_id"));
             Long toId = Long.valueOf((String) map.get("to_id"));
             ChatMessageContainer.userMap.get(userId).setSession(session);
@@ -66,6 +67,7 @@ public class FriendshipWebSocket {
                 ChatMessageContainer.messageMap.get(userId).get(toId).clear();
             }
         } else {
+            //发信息给对应的用户(用户也在跟自己聊), 否则将未读信息存到对应的未读信息容器中
             ChatMessage chatMessage = g.fromJson(message, ChatMessage.class);
             chatMessage.setUserId(Long.valueOf((String) map.get("user_id")));
             chatMessage.setToId(Long.valueOf((String) map.get("to_id")));

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ import java.util.Map;
 @RestController
 @SuppressWarnings("all")
 @RequestMapping("/blogs")
-@CrossOrigin(originPatterns = {"http://localhost:8081/"}, allowCredentials = "true")
+@CrossOrigin(originPatterns = {"http://localhost:8081/", "http://localhost:63342/"}, allowCredentials = "true")
 public class BlogController {
 
     @Autowired

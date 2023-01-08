@@ -1,6 +1,6 @@
 package com.friendship.websocket;
-//根据是否登录操作用户的上线和下线信息
 
+//根据是否登录操作用户的上线和下线信息
 import com.friendship.mapper.UserMapper;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +15,14 @@ import java.util.Map;
 @Component
 public class SaveLoginInfoWebSocket {
 
+    //为什么要用static?因为spring默认只会创建一个对象, 而websocket由于有多个客户端则会创建多个websocket对象, 所以应该让此对象被所有的websocket
+    //对象共享
     private static UserMapper userMapper;
 
     private Long userId;
 
     @Autowired
-    public void setUserMapper(UserMapper userMapper){
+    public void setUserMapper(UserMapper userMapper) {
         SaveLoginInfoWebSocket.userMapper = userMapper;
     }
 
@@ -31,21 +33,20 @@ public class SaveLoginInfoWebSocket {
 
     //收到信息触发
     @OnMessage
-    public void onMessage(String message, Session session) throws Exception{
+    public void onMessage(String message, Session session) throws Exception {
         Gson g = new Gson();
         userId = Math.round((Double) (g.fromJson(message, Map.class).get("user_id")));
         //创建用户上线登录的信息
-        System.out.println("mesageiss  ++:" + message);
-       if(userMapper.userIsNotExists(userId) == 1){
-           FriendshipWebSocket friendshipWebSocket = new FriendshipWebSocket();
-           ChatMessageContainer.userMap.put(userId, friendshipWebSocket);
-           System.out.println("userMap:"  + ChatMessageContainer.userMap);
-       }
+        if (userMapper.userIsNotExists(userId) == 1) {
+            FriendshipWebSocket friendshipWebSocket = new FriendshipWebSocket();
+            ChatMessageContainer.userMap.put(userId, friendshipWebSocket);
+            System.out.println("userMap:" + ChatMessageContainer.userMap);
+        }
 //        将用户未查看的信息条数推送到客户端
         int messageNumber = 0;
-        if (ChatMessageContainer.messageMap.get(userId) != null){
+        if (ChatMessageContainer.messageMap.get(userId) != null) {
             Map<Long, List<Map<String, Object>>> longListMap = ChatMessageContainer.messageMap.get(userId);
-            for ( List<Map<String, Object>> list : longListMap.values()) {
+            for (List<Map<String, Object>> list : longListMap.values()) {
                 messageNumber += list.size();
             }
             System.out.println("longListMap" + longListMap);

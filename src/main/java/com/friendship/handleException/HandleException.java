@@ -1,2 +1,3 @@
-package com.friendship.handleException;public class HandleException {
+package com.friendship.handleException;
+public class HandleException {
 }
