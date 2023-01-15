@@ -1,15 +1,16 @@
 package com.friendship.controller;
 
+import com.friendship.currentLimiting.TokenLimit;
 import com.friendship.pojo.Code;
 import com.friendship.pojo.Result;
 import com.friendship.service.impl.FriendService;
 import com.friendship.websocket.ChatMessageContainer;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
@@ -28,7 +29,8 @@ public class FriendController {
 
     //当用户访问其他用户主页时, 判断其他用户是否被使用者关注
     @GetMapping("/{otherId}")
-    public Result queryIsFollower(@PathVariable Long otherId, HttpServletRequest request){
+    @TokenLimit(key = "/friends/otherId", timeout = 100)
+    public Result queryIsFollower(@PathVariable Long otherId, HttpServletRequest request, HttpServletResponse response){
         String token = request.getHeader("token");
         int i = friendService.queryRelation(token, otherId);
         if(i == 2){

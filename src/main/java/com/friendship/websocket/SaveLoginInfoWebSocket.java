@@ -35,7 +35,7 @@ public class SaveLoginInfoWebSocket {
     @OnMessage
     public void onMessage(String message, Session session) throws Exception {
         Gson g = new Gson();
-        userId = Math.round((Double) (g.fromJson(message, Map.class).get("user_id")));
+        userId = Math.round((Double) (g.fromJson(message, Map.class).get("userId")));
         //创建用户上线登录的信息
         if (userMapper.userIsNotExists(userId) == 1) {
             FriendshipWebSocket friendshipWebSocket = new FriendshipWebSocket();

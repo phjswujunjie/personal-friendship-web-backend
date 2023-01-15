@@ -15,6 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
@@ -23,16 +28,16 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if ("OPTIONS".equals(request.getMethod())){
+        if ("OPTIONS".equals(request.getMethod())) {
             return true;
         }
-        if ("/blogs".equals(request.getRequestURI()) && "GET".equals(request.getMethod())){
+        if ("/blogs".equals(request.getRequestURI()) && "GET".equals(request.getMethod())) {
             return true;
         }
         String token = request.getHeader("token");
-        if (token != null){
+        if (token != null) {
             Map<String, Object> map = TokenRedis.hasLogin(stringRedisTemplate, token);
-            if ((boolean) map.get("loginStatus")){
+            if ((boolean) map.get("loginStatus")) {
                 return true;
             }
         }

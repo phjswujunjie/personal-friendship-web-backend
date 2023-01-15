@@ -1,5 +1,6 @@
 package com.friendship.controller;
 
+import com.friendship.currentLimiting.CounterLimit;
 import com.friendship.pojo.Code;
 import com.friendship.pojo.Result;
 import com.friendship.service.impl.BlogService;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +56,8 @@ public class BlogController {
     }
 
     @GetMapping("/{id}")
-    public Result commentBlogById(@PathVariable Long id, HttpServletRequest request){
+    @CounterLimit(key = "/blogs/id", value = 100)
+    public Result commentBlogById(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response){
         //得到博客的全部评论
         List<Map<String, Object>> allComments = commentService.getAllCommentByBlogId(id, request);
         //得到博客的基本信息

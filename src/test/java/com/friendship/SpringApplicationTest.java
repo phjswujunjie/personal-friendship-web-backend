@@ -1,12 +1,11 @@
 package com.friendship;
 
-import com.friendship.mapper.ChatMessageMapper;
-import com.friendship.mapper.CommentMapper;
-import com.friendship.mapper.FriendlyRelationshipMapper;
-import com.friendship.mapper.UserMapper;
+import com.friendship.mapper.*;
+import com.friendship.pojo.Blog;
 import com.friendship.pojo.FriendlyRelationship;
 import com.friendship.service.impl.FriendService;
 import com.friendship.service.impl.PersonalInfoService;
+import com.google.gson.Gson;
 import org.apache.ibatis.annotations.Mapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +41,9 @@ public class SpringApplicationTest {
 
     @Autowired
     private ChatMessageMapper chatMessageMapper;
+
+    @Autowired
+    private BlogMapper blogMapper;
 
 //    @Test
 //    public void test() {
@@ -131,6 +133,12 @@ public class SpringApplicationTest {
         int a = 2;
         a <<= 2;
         System.out.println(a << 1);
+    }
+
+    @Test
+    public void testById(){
+      String a;
+      a = "a";
     }
 
 }

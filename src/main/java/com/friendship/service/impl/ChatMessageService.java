@@ -31,8 +31,8 @@ public class ChatMessageService {
             return null;
         }
         List<Map<String, Object>> messageList = new java.util.ArrayList<>(chatMessageMapper.getChatMessages(userId, toId).stream().map(p -> {
-            p.put("avatar", "http://localhost:8080/static/upload/" + (stringRedisTemplate.opsForHash().get("user_" + p.get("user_id"), "avatar")));
-            p.put("nickname", stringRedisTemplate.opsForHash().get("user_" + p.get("user_id"), "nickname"));
+            p.put("avatar", "http://localhost:8080/static/upload/" + (stringRedisTemplate.opsForHash().get("user_" + p.get("userId"), "avatar")));
+            p.put("nickname", stringRedisTemplate.opsForHash().get("user_" + p.get("userId"), "nickname"));
             return p;
         }).toList());
         Map<String, Object> map = new HashMap<>();

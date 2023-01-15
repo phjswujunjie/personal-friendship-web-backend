@@ -61,7 +61,7 @@ public class FriendService {
             }
             //为1则代表两个人之间有关注关系(但是不知道谁关注了谁)
             Map<String, Object> map = mapList.get(0);
-            Long user_id = Long.valueOf(map.get("user_id") + "");
+            Long user_id = Long.valueOf(map.get("userId") + "");
             if (user_id.equals(userId)) {
                 //访问者关注了被访问者
                 return 4;

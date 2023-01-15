@@ -1,5 +1,6 @@
 package com.friendship.controller;
 
+import com.friendship.currentLimiting.CounterLimit;
 import com.friendship.pojo.Code;
 import com.friendship.pojo.Result;
 import com.friendship.pojo.User;
@@ -10,6 +11,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
@@ -61,7 +63,8 @@ public class PersonalInfoController {
 
     //得到用户的全部信息
     @GetMapping
-    public Result getUserInfo(HttpServletRequest request){
+    @CounterLimit(key = "users", value = 100)
+    public Result getUserInfo(HttpServletRequest request, HttpServletResponse response){
 //        System.out.println("访问了.............................");
         String token = request.getHeader("token");
         Map<Object, Object> allInfo = personalInfoService.getUserInfo(token);
