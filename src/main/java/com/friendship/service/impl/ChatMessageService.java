@@ -37,6 +37,7 @@ public class ChatMessageService {
         }).toList());
         Map<String, Object> map = new HashMap<>();
         map.put("toNickname", stringRedisTemplate.opsForHash().get("user_"+ toId, "nickname"));
+        map.put("selfId", userId);
         map.put("selfAvatar", "http://localhost:8080/static/upload/" + (stringRedisTemplate.opsForHash().get("user_"+ userId, "avatar")));
         messageList.add(0, map);
         return messageList;
